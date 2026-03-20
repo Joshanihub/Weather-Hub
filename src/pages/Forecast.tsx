@@ -5,7 +5,7 @@ import WeatherIcon from '../components/weather/WeatherIcon';
 import { Calendar, Droplets, Wind } from 'lucide-react';
 import { weatherApi } from '../utils/weatherApi';
 import type { WeatherData } from '../types/weather';
-import { useSettings } from '../contexts/SettingsContext';
+import { useSettings } from '../hooks/useSettings';
 import { 
   convertTemperature, 
   getTemperatureUnit,

@@ -70,7 +70,7 @@ const Home: React.FC = () => {
   };
 
   const handleSaveLocation = () => {
-    if (weatherData && searchQuery.trim()) {
+    if (weatherData) {
       const newLocation: SavedLocation = {
         id: Date.now().toString(),
         name: weatherData.location.name,
@@ -83,7 +83,6 @@ const Home: React.FC = () => {
       const updated = [...savedLocations, newLocation];
       setSavedLocations(updated);
       localStorage.setItem('savedLocations', JSON.stringify(updated));
-      setSearchQuery('');
     }
   };
 

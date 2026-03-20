@@ -11,7 +11,7 @@ import {
   MapPin
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
-import { useSettings } from '../../contexts/SettingsContext';
+import { useSettings } from '../../hooks/useSettings';
 import { 
   convertTemperature, 
   getTemperatureUnit,

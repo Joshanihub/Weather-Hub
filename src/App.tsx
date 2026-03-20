@@ -6,7 +6,7 @@ import Forecast from './pages/Forecast';
 import Map from './pages/Map';
 import Saved from './pages/Saved';
 import Settings from './pages/Settings';
-import { SettingsProvider } from './contexts/SettingsContext';
+import { SettingsProvider } from './contexts/SettingsContext.tsx';
 
 function App() {
   return (

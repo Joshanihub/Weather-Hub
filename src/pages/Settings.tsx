@@ -2,7 +2,7 @@ import React from 'react';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import { Thermometer, Wind, Eye, Gauge, Bell, Palette } from 'lucide-react';
-import { useSettings } from '../contexts/SettingsContext';
+import { useSettings } from '../hooks/useSettings';
 
 const Settings: React.FC = () => {
   const { settings, updateSettings } = useSettings();

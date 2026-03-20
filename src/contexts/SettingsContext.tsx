@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { SettingsContext } from './settingsContext';
+import { SettingsContext } from './SettingsContext';
 import type { UserSettings } from '../types/weather';
 import type { ReactNode } from 'react';
 
