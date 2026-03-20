@@ -1,12 +1,7 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { SettingsContext } from './settingsContext';
 import type { UserSettings } from '../types/weather';
 import type { ReactNode } from 'react';
-
-interface SettingsContextType {
-  settings: UserSettings;
-  updateSettings: (newSettings: Partial<UserSettings>) => void;
-  resetSettings: () => void;
-}
 
 const defaultSettings: UserSettings = {
   units: {
@@ -24,16 +19,6 @@ const defaultSettings: UserSettings = {
     theme: 'light',
     animations: true,
   },
-};
-
-const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
-
-export const useSettings = () => {
-  const context = useContext(SettingsContext);
-  if (!context) {
-    throw new Error('useSettings must be used within a SettingsProvider');
-  }
-  return context;
 };
 
 interface SettingsProviderProps {
