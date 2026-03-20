@@ -22,7 +22,9 @@ const Home: React.FC = () => {
       setSearchQuery(location.state.location);
       loadWeatherData(location.state.location);
     } else {
-      loadWeatherData('San Francisco');
+      // Use environment variable for default location, fallback to Nairobi
+      const defaultLocation = import.meta.env.VITE_DEFAULT_LOCATION || 'Nairobi';
+      loadWeatherData(defaultLocation);
     }
     loadSavedLocations();
   }, [location.state]);
