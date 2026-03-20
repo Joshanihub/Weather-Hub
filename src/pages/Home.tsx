@@ -35,6 +35,7 @@ const Home: React.FC = () => {
       setApiError(null);
       const data = await weatherApi.getForecast(query);
       setWeatherData(data);
+      setSearchQuery(''); // Clear search after successful load
     } catch (err) {
       console.error('Error loading weather data:', err);
       setApiError(err instanceof Error ? err.message : 'Failed to load weather data');

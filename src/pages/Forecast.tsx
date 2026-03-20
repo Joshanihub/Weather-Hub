@@ -5,6 +5,13 @@ import WeatherIcon from '../components/weather/WeatherIcon';
 import { Calendar, Droplets, Wind } from 'lucide-react';
 import { weatherApi } from '../utils/weatherApi';
 import type { WeatherData } from '../types/weather';
+import { useSettings } from '../contexts/SettingsContext';
+import { 
+  convertTemperature, 
+  getTemperatureUnit,
+  convertWindSpeed, 
+  getWindUnit
+} from '../utils/unitConversions';
 
 const Forecast: React.FC = () => {
   const [selectedDay, setSelectedDay] = useState<number>(0);
@@ -12,13 +19,21 @@ const Forecast: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('San Francisco');
+  const [currentLocation, setCurrentLocation] = useState('San Francisco');
+  const { settings } = useSettings();
 
-  const loadForecastData = useCallback(async () => {
+  const loadForecastData = useCallback(async (location: string) => {
+    if (!location.trim()) {
+      setError('Please enter a city name to search');
+      return;
+    }
+    
     try {
       setLoading(true);
       setError(null);
-      const data = await weatherApi.getForecast(searchQuery);
+      const data = await weatherApi.getForecast(location);
       setWeatherData(data);
+      setCurrentLocation(location);
     } catch (err) {
       console.error('Error loading forecast data:', err);
       setError(err instanceof Error ? err.message : 'Failed to load forecast data');
@@ -26,16 +41,24 @@ const Forecast: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [searchQuery]);
+  }, []);
 
+  // Load initial data
   useEffect(() => {
-    loadForecastData();
-  }, [loadForecastData]);
+    loadForecastData(currentLocation);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
-      loadForecastData();
+      loadForecastData(searchQuery);
     }
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery('');
+    setError(null);
+    // Don't clear weatherData so user still sees the last forecast
   };
 
   if (loading) {
@@ -56,7 +79,7 @@ const Forecast: React.FC = () => {
         <Card className="p-6 border-red-200 bg-red-50">
           <div className="text-center">
             <p className="text-red-600 mb-4">{error || 'No weather data available'}</p>
-            <Button onClick={loadForecastData}>Try Again</Button>
+            <Button onClick={() => loadForecastData(currentLocation)}>Try Again</Button>
           </div>
         </Card>
       </div>
@@ -72,6 +95,16 @@ const Forecast: React.FC = () => {
       day: 'numeric',
     });
   };
+
+  // Get unit conversion functions
+  const tempUnit = getTemperatureUnit(settings.units.temperature);
+  const windUnit = getWindUnit(settings.units.wind);
+
+  // Convert temperature function
+  const convertTemp = (celsius: number) => convertTemperature(celsius, settings.units.temperature);
+  
+  // Convert wind speed function
+  const convertWind = (kmh: number) => convertWindSpeed(kmh, settings.units.wind);
 
   return (
     <div className="space-y-6">
@@ -94,6 +127,11 @@ const Forecast: React.FC = () => {
           <Button onClick={handleSearch}>
             Search
           </Button>
+          {searchQuery && (
+            <Button variant="secondary" onClick={handleClearSearch}>
+              Clear
+            </Button>
+          )}
         </div>
       </Card>
 
@@ -131,7 +169,7 @@ const Forecast: React.FC = () => {
                 />
                 <div>
                   <p className="text-2xl font-bold text-surface-900">
-                    {forecastDays[selectedDay].day.max_temp}° / {forecastDays[selectedDay].day.min_temp}°
+                    {convertTemp(forecastDays[selectedDay].day.max_temp)}{tempUnit} / {convertTemp(forecastDays[selectedDay].day.min_temp)}{tempUnit}
                   </p>
                   <p className="text-surface-600">
                     {forecastDays[selectedDay].day.condition.text}
@@ -143,7 +181,7 @@ const Forecast: React.FC = () => {
             <div className="space-y-3">
               <div className="flex justify-between">
                 <span className="text-surface-600">Average Temperature</span>
-                <span className="font-medium">{forecastDays[selectedDay].day.avg_temp}°</span>
+                <span className="font-medium">{convertTemp(forecastDays[selectedDay].day.avg_temp)}{tempUnit}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-surface-600">Humidity</span>
@@ -151,7 +189,7 @@ const Forecast: React.FC = () => {
               </div>
               <div className="flex justify-between">
                 <span className="text-surface-600">Wind Speed</span>
-                <span className="font-medium">{forecastDays[selectedDay].day.max_wind} km/h</span>
+                <span className="font-medium">{convertWind(forecastDays[selectedDay].day.max_wind)} {windUnit}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-surface-600">UV Index</span>
@@ -220,11 +258,11 @@ const Forecast: React.FC = () => {
                 </div>
                 <div className="flex items-center space-x-2 text-surface-600">
                   <Wind className="h-4 w-4" />
-                  <span className="text-sm">{day.day.max_wind} km/h</span>
+                  <span className="text-sm">{convertWind(day.day.max_wind)} {windUnit}</span>
                 </div>
                 <div className="text-right">
                   <p className="font-medium text-surface-900">
-                    {day.day.max_temp}° / {day.day.min_temp}°
+                    {convertTemp(day.day.max_temp)}{tempUnit} / {convertTemp(day.day.min_temp)}{tempUnit}
                   </p>
                 </div>
               </div>

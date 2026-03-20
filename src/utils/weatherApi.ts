@@ -21,9 +21,21 @@ export const weatherApi = {
     }
     
     try {
-      const response = await api.get('/weather', {
-        params: { q: location, appid: API_KEY, units: 'metric' }
-      });
+      let params;
+      
+      // Check if location is coordinates (lat,lon format)
+      if (location.includes(',')) {
+        const [lat, lon] = location.split(',').map(coord => parseFloat(coord.trim()));
+        if (!isNaN(lat) && !isNaN(lon)) {
+          params = { lat, lon, appid: API_KEY, units: 'metric' };
+        } else {
+          params = { q: location, appid: API_KEY, units: 'metric' };
+        }
+      } else {
+        params = { q: location, appid: API_KEY, units: 'metric' };
+      }
+      
+      const response = await api.get('/weather', { params });
       
       // Transform OpenWeatherMap response to match our types
       const data = response.data;
@@ -67,9 +79,21 @@ export const weatherApi = {
     }
     
     try {
-      const response = await api.get('/forecast', {
-        params: { q: location, appid: API_KEY, units: 'metric', cnt: days * 8 } // 8 forecasts per day (3-hour intervals)
-      });
+      let params;
+      
+      // Check if location is coordinates (lat,lon format)
+      if (location.includes(',')) {
+        const [lat, lon] = location.split(',').map(coord => parseFloat(coord.trim()));
+        if (!isNaN(lat) && !isNaN(lon)) {
+          params = { lat, lon, appid: API_KEY, units: 'metric', cnt: days * 8 };
+        } else {
+          params = { q: location, appid: API_KEY, units: 'metric', cnt: days * 8 };
+        }
+      } else {
+        params = { q: location, appid: API_KEY, units: 'metric', cnt: days * 8 };
+      }
+      
+      const response = await api.get('/forecast', { params });
       
       const data = response.data;
       

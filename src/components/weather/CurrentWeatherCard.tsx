@@ -11,6 +11,17 @@ import {
   MapPin
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
+import { useSettings } from '../../contexts/SettingsContext';
+import { 
+  convertTemperature, 
+  getTemperatureUnit,
+  convertWindSpeed, 
+  getWindUnit,
+  convertVisibility, 
+  getVisibilityUnit,
+  convertPressure, 
+  getPressureUnit
+} from '../../utils/unitConversions';
 
 interface CurrentWeatherCardProps {
   location: Location;
@@ -23,6 +34,8 @@ const CurrentWeatherCard: React.FC<CurrentWeatherCardProps> = ({
   current,
   className
 }) => {
+  const { settings } = useSettings();
+
   const formatTime = (timeString: string) => {
     return new Date(timeString).toLocaleTimeString('en-US', {
       hour: '2-digit',
@@ -36,6 +49,20 @@ const CurrentWeatherCard: React.FC<CurrentWeatherCardProps> = ({
     if (current.condition.text.toLowerCase().includes('cloud')) return 'weather-gradient-cloudy';
     return 'weather-gradient-sunny';
   };
+
+  // Convert values based on user settings
+  const temperature = convertTemperature(current.temperature, settings.units.temperature);
+  const feelsLike = convertTemperature(current.feels_like, settings.units.temperature);
+  const tempUnit = getTemperatureUnit(settings.units.temperature);
+  
+  const windSpeed = convertWindSpeed(current.wind_speed, settings.units.wind);
+  const windUnit = getWindUnit(settings.units.wind);
+  
+  const visibility = convertVisibility(current.visibility, settings.units.visibility);
+  const visibilityUnit = getVisibilityUnit(settings.units.visibility);
+  
+  const pressure = convertPressure(current.pressure, settings.units.pressure);
+  const pressureUnit = getPressureUnit(settings.units.pressure);
 
   return (
     <Card 
@@ -73,11 +100,11 @@ const CurrentWeatherCard: React.FC<CurrentWeatherCardProps> = ({
         <div className="flex items-center justify-between mb-6">
           <div>
             <div className="text-6xl font-bold text-white">
-              {Math.round(current.temperature)}°
+              {temperature}{tempUnit}
             </div>
             <p className="text-xl text-white/90 mt-2">{current.condition.text}</p>
             <p className="text-white/80">
-              Feels like {Math.round(current.feels_like)}°
+              Feels like {feelsLike}{tempUnit}
             </p>
           </div>
           <div className="text-right">
@@ -94,7 +121,7 @@ const CurrentWeatherCard: React.FC<CurrentWeatherCardProps> = ({
             <Thermometer className="h-4 w-4 text-white/80" />
             <div>
               <p className="text-white/60 text-xs">Real Feel</p>
-              <p className="text-white font-medium">{Math.round(current.feels_like)}°</p>
+              <p className="text-white font-medium">{feelsLike}{tempUnit}</p>
             </div>
           </div>
           
@@ -110,7 +137,7 @@ const CurrentWeatherCard: React.FC<CurrentWeatherCardProps> = ({
             <Wind className="h-4 w-4 text-white/80" />
             <div>
               <p className="text-white/60 text-xs">Wind</p>
-              <p className="text-white font-medium">{current.wind_speed} km/h</p>
+              <p className="text-white font-medium">{windSpeed} {windUnit}</p>
             </div>
           </div>
           
@@ -118,7 +145,7 @@ const CurrentWeatherCard: React.FC<CurrentWeatherCardProps> = ({
             <Eye className="h-4 w-4 text-white/80" />
             <div>
               <p className="text-white/60 text-xs">Visibility</p>
-              <p className="text-white font-medium">{current.visibility} km</p>
+              <p className="text-white font-medium">{visibility} {visibilityUnit}</p>
             </div>
           </div>
         </div>
@@ -128,7 +155,7 @@ const CurrentWeatherCard: React.FC<CurrentWeatherCardProps> = ({
           <div className="flex justify-between text-sm">
             <div className="flex items-center space-x-2">
               <Gauge className="h-4 w-4 text-white/80" />
-              <span className="text-white/80">Pressure: {current.pressure} mb</span>
+              <span className="text-white/80">Pressure: {pressure} {pressureUnit}</span>
             </div>
             <div className="flex items-center space-x-2">
               <div className="h-4 w-4 text-white/80">☀️</div>

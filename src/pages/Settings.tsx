@@ -1,94 +1,41 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import { Thermometer, Wind, Eye, Gauge, Bell, Palette } from 'lucide-react';
-import type { UserSettings } from '../types/weather';
+import { useSettings } from '../contexts/SettingsContext';
 
 const Settings: React.FC = () => {
-  const [settings, setSettings] = useState<UserSettings>(() => {
-    // Load settings from localStorage during initialization
-    const savedSettings = localStorage.getItem('weatherAppSettings');
-    if (savedSettings) {
-      try {
-        const parsedSettings = JSON.parse(savedSettings);
-        return {
-          units: {
-            temperature: 'celsius',
-            wind: 'kmh',
-            pressure: 'mb',
-            visibility: 'km',
-            ...parsedSettings.units,
-          },
-          notifications: {
-            weatherAlerts: true,
-            dailyForecast: false,
-            severeWeather: true,
-            ...parsedSettings.notifications,
-          },
-          appearance: {
-            theme: 'light',
-            animations: true,
-            ...parsedSettings.appearance,
-          },
-        };
-      } catch (e) {
-        console.error('Error parsing settings:', e);
-      }
-    }
-    
-    return {
-      units: {
-        temperature: 'celsius',
-        wind: 'kmh',
-        pressure: 'mb',
-        visibility: 'km',
-      },
-      notifications: {
-        weatherAlerts: true,
-        dailyForecast: false,
-        severeWeather: true,
-      },
-      appearance: {
-        theme: 'light',
-        animations: true,
-      },
-    };
-  });
+  const { settings, updateSettings } = useSettings();
 
-  const handleUnitChange = (unit: keyof UserSettings['units'], value: string) => {
-    setSettings(prev => ({
-      ...prev,
+  const handleUnitChange = (unit: keyof typeof settings.units, value: string) => {
+    updateSettings({
       units: {
-        ...prev.units,
-        [unit]: value as 'celsius' | 'fahrenheit' | 'kmh' | 'mph' | 'ms' | 'mb' | 'in' | 'hPa' | 'km' | 'miles',
+        ...settings.units,
+        [unit]: value,
       },
-    }));
+    });
   };
 
-  const handleNotificationChange = (notification: keyof UserSettings['notifications'], value: boolean) => {
-    setSettings(prev => ({
-      ...prev,
+  const handleNotificationChange = (notification: keyof typeof settings.notifications, value: boolean) => {
+    updateSettings({
       notifications: {
-        ...prev.notifications,
+        ...settings.notifications,
         [notification]: value,
       },
-    }));
+    });
   };
 
-  const handleAppearanceChange = (setting: keyof UserSettings['appearance'], value: string | boolean) => {
-    setSettings(prev => ({
-      ...prev,
+  const handleAppearanceChange = (setting: keyof typeof settings.appearance, value: string | boolean) => {
+    updateSettings({
       appearance: {
-        ...prev.appearance,
+        ...settings.appearance,
         [setting]: value,
       },
-    }));
+    });
   };
 
   const handleSave = () => {
-    // Save settings to localStorage
-    localStorage.setItem('weatherAppSettings', JSON.stringify(settings));
-    // Show success message (could be enhanced with a toast notification)
+    // Settings are automatically saved via context
     alert('Settings saved successfully!');
   };
 
